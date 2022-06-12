@@ -18,6 +18,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import navControl.NavController
+import usuario.Historial
+import usuario.Usuario
 import kotlin.system.exitProcess
 
 @Composable
@@ -32,6 +34,12 @@ fun LanzarApp(navController: NavController){
             }
             OutlinedButton(onClick = {navController.navigate(Screen.CreaCuenta.name)}) {
                 Text("Crea una Cuenta")
+            }
+            OutlinedButton(onClick = {
+                navController.usr = Usuario(nombre = "Invitado", saldo = 1000F, historial = Historial(mutableListOf()), "")
+                navController.navigate(Screen.Principal.name)
+            }) {
+                Text("Modo Invitado")
             }
         }
 

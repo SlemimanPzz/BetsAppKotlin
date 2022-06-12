@@ -43,7 +43,7 @@ fun IniciaSesion(navController: NavController) {
 
         when(pop){
             0 -> {
-                Dialog(onCloseRequest = { pop = -1}) {
+                Dialog(onCloseRequest = { pop = -1}, title = "Info Inicio de Sesión") {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -54,16 +54,14 @@ fun IniciaSesion(navController: NavController) {
                 }
             }
             1 -> {
-                Dialog(onCloseRequest = {
-                    navController.navigate(Screen.LanzarApp.name)
-                }) {
+                Dialog(onCloseRequest = { navController.navigate(Screen.Principal.name) }, title = "Info Inicio de Sesión") {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Bienvendio ${navController.usr?.nombre}")
-                        Text("Cierra esta ventana para que inicies sesion.")
+                        Text("Bienvenido ${navController.usr?.nombre}")
+                        Text("Cierra esta ventana para que inicies sesión.")
                     }
                 }
             }
@@ -116,7 +114,6 @@ fun IniciaSesion(navController: NavController) {
         OutlinedButton(
             onClick = {
                 val usr : Usuario? = Usuario.iniciaSesion(name.text, password.text)
-                println("Inicia sesion " + password)
                 if(usr == null){
                     pop = 0
                     return@OutlinedButton

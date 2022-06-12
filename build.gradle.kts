@@ -35,8 +35,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
                 implementation("androidx.navigation:navigation-compose:2.4.2")
-                implementation("com.arkivanov.decompose:decompose:0.6.0-native-compose-01")
-                implementation("com.arkivanov.decompose:extensions-compose-jetbrains:0.6.0")
             }
         }
         val jvmTest by getting
@@ -47,7 +45,7 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Probando"
             packageVersion = "1.0.0"
         }

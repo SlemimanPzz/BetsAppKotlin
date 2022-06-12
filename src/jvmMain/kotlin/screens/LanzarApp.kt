@@ -36,7 +36,7 @@ fun LanzarApp(navController: NavController){
                 Text("Crea una Cuenta")
             }
             OutlinedButton(onClick = {
-                navController.usr = Usuario(nombre = "Invitado", saldo = 1000F, historial = Historial(mutableListOf()), "")
+                navController.usr = Usuario(nombre = "Invitado", saldo = 1000F, historial = Historial(mutableListOf()), "", null)
                 navController.navigate(Screen.Principal.name)
             }) {
                 Text("Modo Invitado")

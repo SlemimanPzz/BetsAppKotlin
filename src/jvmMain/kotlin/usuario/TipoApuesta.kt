@@ -5,5 +5,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class TipoApuesta {
     TORNEO,
-    CARRERA
+    CARRERA;
+
+    override fun toString() : String{
+        return when(this){
+            TORNEO  -> "Torneo"
+            CARRERA -> "Carrera"
+        }
+    }
 }

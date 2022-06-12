@@ -35,7 +35,7 @@ fun leeContrasena(): String {
  * @property hashPassword Hash de la contraseña del usuario.
  */
 @Serializable
-data class Usuario(val nombre: String, var saldo: Float, val historial: Historial, val hashPassword :String){
+data class Usuario(val nombre: String, var saldo: Float, val historial: Historial, val hashPassword :String, var ultimaApuesta: Apuesta?){
 
 
     companion object {

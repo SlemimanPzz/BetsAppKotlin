@@ -179,7 +179,8 @@ fun CreaCuenta( navController: NavController ) {
                         nombre = name.text,
                         saldo = i,
                         historial = Historial(mutableListOf()),
-                        password.text.hash512()
+                        password.text.hash512(),
+                        null
                     )
                     println("Crea $password")
                     usr.guarda()

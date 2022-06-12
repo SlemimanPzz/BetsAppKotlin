@@ -21,6 +21,7 @@ import navControl.rememberNavController
 import screens.CreaCuenta
 import screens.IniciaSesion
 import screens.LanzarApp
+import screens.Principal
 import usuario.Usuario
 
 
@@ -46,6 +47,9 @@ enum class Screen(val label : String){
     ),
     CreaCuenta(
         label = "Crea Cuenta"
+    ),
+    Principal(
+      label = "Principal"
     )
 
 }
@@ -75,6 +79,10 @@ fun CustomNavigationHost(
 
             composable(Screen.CreaCuenta.name) {
                 CreaCuenta(navController)
+            }
+
+            composable(Screen.Principal.name){
+                Principal(navController)
             }
 
         }.build()

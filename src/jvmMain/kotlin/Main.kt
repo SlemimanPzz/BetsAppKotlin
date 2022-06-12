@@ -40,7 +40,7 @@ fun App(){
 
 enum class Screen(val label : String){
     LanzarApp(
-        label = "Lazar",
+        label = "Lanzar",
     ),
     InciaSesion(
         label = "Inicia Sesión"

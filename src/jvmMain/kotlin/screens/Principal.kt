@@ -1,18 +1,21 @@
 package screens
 
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,8 +39,8 @@ enum class Ventanas {
 
 @Composable
 fun int(i : Int){
-    Row {
-        Text("$i")
+    Row() {
+            Text("$i")
     }
 }
 
@@ -66,7 +69,7 @@ fun consultaUsuario(usuario: Usuario?, popup: MutableState<Ventanas>){
 
 @Composable
 fun consultaHistorial(historial: Historial, popup: MutableState<Ventanas>) {
-    Dialog(onCloseRequest = { popup.value = Ventanas.NADA }) {
+    Dialog(onCloseRequest = { popup.value = Ventanas.NADA }, title = "Tu historial") {
         historial.historial.add(Apuesta(ganada = false, apostado = 90F, ganancia = 0F, tipo = TipoApuesta.TORNEO))
         if (historial.historial.size == 0) {
             Text("Aun no tienes historial, apuesta para ganar 😈")
@@ -110,8 +113,7 @@ fun consultaHistorial(historial: Historial, popup: MutableState<Ventanas>) {
     @Composable
     fun Principal(navController: NavController) {
 
-        val arr = remember { mutableStateListOf<Int>() }
-        arr.add(0)
+        val arr = remember { mutableStateListOf<Int>(1,2,3,4) }
 
         val ventana = remember { mutableStateOf(Ventanas.NADA) }
 
@@ -125,6 +127,11 @@ fun consultaHistorial(historial: Historial, popup: MutableState<Ventanas>) {
             Ventanas.CONSUTAUSUARIO -> consultaUsuario(navController.usr, ventana)
             Ventanas.CONSULTAHISTORIAL -> consultaHistorial(navController.usr!!.historial, ventana)
             else -> {}
+        }
+
+
+        Row(modifier = Modifier.padding(40.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Text("La carrera")
         }
 
         LazyColumn(

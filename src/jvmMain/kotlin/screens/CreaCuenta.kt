@@ -1,8 +1,6 @@
 package screens
 
-import App
 import Screen
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -11,7 +9,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,18 +17,28 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.Popup
-import kotlinx.coroutines.delay
 import navControl.NavController
 import usuario.Historial
 import usuario.Usuario
 
-
-fun valida(s : String): Boolean {
+/**
+ * Valida si una string es un error para ser un [Float]
+ * @return `true`si es un error.
+ */
+fun esErrorFloat(s : String): Boolean {
     return try{
         s.toFloat()
         false
     } catch ( _ : NumberFormatException){
+        true
+    }
+}
+
+fun esErrorInt(s : String): Boolean{
+    return try {
+        s.toInt()
+        false
+    } catch (_ : NumberFormatException) {
         true
     }
 }
@@ -158,7 +165,7 @@ fun CreaCuenta( navController: NavController ) {
             placeholder = { Text("tu saldo inicial") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = true),
             singleLine = true,
-            isError = valida(saldo.text)
+            isError = esErrorFloat(saldo.text)
         )
 
 

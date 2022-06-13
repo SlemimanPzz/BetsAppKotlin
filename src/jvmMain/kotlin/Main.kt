@@ -10,8 +10,10 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.singleWindowApplication
 import navControl.NavController
@@ -58,7 +60,7 @@ enum class Screen(val label : String){
 
 
 fun main() = application{
-    Window(onCloseRequest = ::exitApplication, title = "Apuestas") {
+    Window(onCloseRequest = ::exitApplication, title = "Apuestas", state = WindowState(size = DpSize(1000.dp, 500.dp))) {
         App()
     }
 }
@@ -72,19 +74,15 @@ fun CustomNavigationHost(
             composable(Screen.LanzarApp.name) {
                 LanzarApp(navController)
             }
-
             composable(Screen.InciaSesion.name) {
                 IniciaSesion(navController)
             }
-
             composable(Screen.CreaCuenta.name) {
                 CreaCuenta(navController)
             }
-
             composable(Screen.Principal.name){
                 Principal(navController)
             }
-
         }.build()
     }
 

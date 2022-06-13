@@ -78,8 +78,8 @@ data class Usuario(val nombre: String, var saldo: Float, val historial: Historia
         archivoGuarda.close()
     }
 
-    fun agregarSaldo() {
-        TODO("Not yet implemented")
+    fun agregarSaldo(f : Float) {
+        saldo += f
     }
 
     fun consultaHistorial() {

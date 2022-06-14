@@ -11,14 +11,14 @@ import kotlin.random.Random
 import androidx.compose.runtime.*
 
 
-class Carrera(val numCompetidores : Int, val usuario : Usuario, var apuestaCarrera: ApuestaCarrera) {
+class Carrera(val numCompetidores : Int, val usuario : Usuario, var apuestaCarrera: ApuestaPartida) {
     val corredores = Array(numCompetidores) {Corredor(it +1, MutableList(0){0}, 0f)}
     var lasWin by mutableStateOf(corredores[0])
     var iterCarrera by mutableStateOf(0)
     var segundosParaSiguiente by mutableStateOf(10)
 
 
-    fun apuesta1(apostado : Int,cantida : Float){
+    fun apuesta(apostado : Int, cantida : Float){
         apuestaCarrera = apuestaCarrera.copy(apostado, cantida)
     }
 
@@ -95,6 +95,7 @@ class Carrera(val numCompetidores : Int, val usuario : Usuario, var apuestaCarre
         }
         println("Tu apuesta ha sido procesada.")
         apuestaCarrera = apuestaCarrera.copy(0, 0F)
+        usuario.ultimaApuesta = usuario.historial.historial.last()
     }
 
     suspend fun hacerCarrera() {

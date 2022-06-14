@@ -60,7 +60,7 @@ enum class Screen(val label : String){
 
 
 fun main() = application{
-    Window(onCloseRequest = ::exitApplication, title = "Apuestas", state = WindowState(size = DpSize(1000.dp, 500.dp))) {
+    Window(onCloseRequest = ::exitApplication, title = "Apuestas", state = WindowState(size = DpSize(1000.dp, 600.dp))) {
         App()
     }
 }

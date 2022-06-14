@@ -3,15 +3,12 @@ package screens
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,15 +17,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogState
-import carrera.ApuestaCarrera
+import carrera.ApuestaPartida
 import carrera.Carrera
 import carrera.Corredor
 import navControl.NavController
+import torneo.Torneo
 import usuario.Historial
 import usuario.Usuario
 import kotlin.system.exitProcess
@@ -37,44 +36,10 @@ enum class Ventanas {
     NADA,
     CONSUTAUSUARIO,
     CONSULTAHISTORIAL,
-    APOSTARCARRERA,
-    CONSULTAHISTORIALCARRERA
+    CONSULTAHISTORIALCARRERA,
 }
 
 
-
-@Composable
-fun apuesta(carrera: Carrera, popup: MutableState<Ventanas>){
-   var expandirSeleccion by remember { mutableStateOf(false) }
-    val corredores = IntArray(6){it +1}
-    var mSelectedText by remember { mutableStateOf("") }
-
-    val icono = when(expandirSeleccion){
-        true -> Icons.Default.KeyboardArrowDown
-        false -> Icons.Default.KeyboardArrowUp
-    }
-
-
-   Dialog(
-       onCloseRequest = {popup.value = Ventanas.NADA},
-       title = "Apostar"
-   ) {
-       Column {
-           IntArray(6) {it+1}.forEach {
-               OutlinedButton(onClick = {carrera.apuesta1(it, 10F);popup.value = Ventanas.NADA }){
-                   Text("Apuesta $it")
-               }
-           }
-       }
-   }
-}
-
-@Composable
-fun int(i : Int){
-    Row() {
-            Text("$i")
-    }
-}
 
 
 @Composable
@@ -123,7 +88,6 @@ fun consutlaCorredores(corredores : Array<Corredor>, popup: MutableState<Ventana
     }
 
 }
-
 
 @Composable
 fun consultaUsuario(usuario: Usuario?, popup: MutableState<Ventanas>){
@@ -197,18 +161,16 @@ fun consultaHistorial(historial: Historial, popup: MutableState<Ventanas>) {
 @Composable
 fun Principal(navController: NavController) {
 
-    val arr = remember { mutableStateListOf<Int>(1,2,3,4) }
 
     val ventana = remember { mutableStateOf(Ventanas.NADA) }
 
-    val estado = rememberLazyListState()
+    var apuestaCarrera by mutableStateOf(ApuestaPartida(0, 0F))
+    var apuestaTorneo by mutableStateOf(ApuestaPartida(-1, 0F))
 
-    var apuestaCarrera by mutableStateOf(ApuestaCarrera(0,0F))
-
+    var torneo by remember { mutableStateOf(navController.usr?.let { Torneo(it, apuestaTorneo) }) }
     val race = navController.usr?.let { Carrera(6, usuario = it, apuestaCarrera) }
 
     val carrera by remember { mutableStateOf(race) }
-
 
 
     //Dialogos
@@ -216,7 +178,6 @@ fun Principal(navController: NavController) {
         Ventanas.NADA -> {}
         Ventanas.CONSUTAUSUARIO -> consultaUsuario(navController.usr, ventana)
         Ventanas.CONSULTAHISTORIAL -> consultaHistorial(navController.usr!!.historial, ventana)
-        Ventanas.APOSTARCARRERA -> race?.let { apuesta(it, ventana) }
         Ventanas.CONSULTAHISTORIALCARRERA -> if (race != null) {
             carrera?.let { consutlaCorredores(it.corredores, ventana) }
         }
@@ -228,10 +189,10 @@ fun Principal(navController: NavController) {
 
 
         //Barra Lateral
-        Column( horizontalAlignment = Alignment.Start) {
+        Column(horizontalAlignment = Alignment.Start) {
             NavigationRail {
                 Box {
-                    IconButton(onClick = { exitProcess(0) }) {
+                    IconButton(onClick = { navController.usr?.guarda(); exitProcess(0) }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = null
@@ -256,155 +217,289 @@ fun Principal(navController: NavController) {
                     Text("Historial")
                 }
 
-                Spacer(Modifier.padding(8.dp))
-
-                OutlinedButton(onClick = { arr.add(arr.last() + 1) }) {
-                    Text("Agrega ${arr.last() + 1}")
-                }
-
-                Spacer(Modifier.padding(8.dp))
-
-                OutlinedButton(onClick = { arr.removeLast() }) {
-                    when (arr.size) {
-                        0 -> Text("Si le picas va a dar error, estas avisado.")
-                        else -> Text("Elimina ${arr.last()}")
+                var saldoExtra by remember { mutableStateOf(TextFieldValue("0")) }
+                var textoBoton by remember { mutableStateOf("💰 Agregar 💲") }
+                OutlinedButton(
+                    onClick = {
+                        if (esErrorFloat(saldoExtra.text)) {
+                            textoBoton = "Error"
+                            return@OutlinedButton
+                        } else {
+                            navController.usr?.agregarSaldo(saldoExtra.text.toFloat())
+                        }
                     }
+                ) {
+                    Text(textoBoton)
                 }
+                OutlinedTextField(
+                    value = saldoExtra,
+                    onValueChange = { saldoExtra = it },
+                    label = { Text("Agrega Saldo") },
+                    placeholder = { Text("Saldo") },
+                    modifier = Modifier.width(80.dp),
+                    isError = esErrorFloat(saldoExtra.text)
+                )
+            }
+
 
             }
-        }
 
-        //La carrera
-        Column(horizontalAlignment = Alignment.End) {
-            Row(modifier = Modifier.padding(40.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                Column {
 
-                    Text("La carrera de 6 corredores, Iteración ${carrera?.iterCarrera?.minus(6)}")
+            //Apuesta y Carrera
+            Column {
 
-                    var apuesta by remember { mutableStateOf(TextFieldValue("0")) }
-                    var porra by remember { mutableStateOf(TextFieldValue("0")) }
+                //La carrera
+                Row(
+                    modifier = Modifier.padding(40.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Column {
 
-                    Row (horizontalArrangement = Arrangement.SpaceEvenly){
-                        //Recibe Saldo
-                        OutlinedTextField(
-                            value = apuesta,
-                            onValueChange = {newValue ->
-                                run {
-                                    apuesta = newValue;
+                        Text("La carrera de 6 corredores, Iteración ${carrera?.iterCarrera?.minus(6)}")
+
+                        var apuesta by remember { mutableStateOf(TextFieldValue("0")) }
+                        var porra by remember { mutableStateOf(TextFieldValue("0")) }
+
+                        Row {
+                            //Recibe Saldo
+                            OutlinedTextField(
+                                value = apuesta,
+                                onValueChange = { newValue ->
+                                    run {
+                                        apuesta = newValue;
+                                    }
+                                },
+                                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                                label = { Text("💸 Tu apuesta 💸") },
+                                placeholder = { Text("El saldo que vas a apostar") },
+                                singleLine = true,
+                                isError = esErrorFloat(apuesta.text),
+                                modifier = Modifier.width(120.dp)
+                            )
+
+                            OutlinedTextField(
+                                value = porra,
+                                onValueChange = { newValue ->
+                                    run {
+                                        porra = newValue;
+                                    }
+                                },
+                                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                                label = { Text("A quien le vas ") },
+                                placeholder = { Text("Elige 1 competidor del 1 al 6") },
+                                singleLine = true,
+                                isError = esErrorInt(porra.text),
+                                modifier = Modifier.width(120.dp)
+                            )
+
+
+                        }
+
+                        Text("Tu apuesta se procesa en la siguiente carrera")
+
+                        Row {
+                            var textoBoton by remember { mutableStateOf("Apuesta") }
+                            Column {
+                                OutlinedButton(onClick = {
+                                    textoBoton = if (!esErrorFloat(apuesta.text)) {
+
+                                        if (navController.usr?.saldo!! < apuesta.text.toFloat()) {
+                                            textoBoton = "Saldo Insuficiente"
+                                            return@OutlinedButton
+                                        }
+                                        if (!esErrorInt(porra.text)) {
+                                            val apostado = porra.text.toInt()
+                                            if (apostado in 1..6) {
+                                                carrera?.apuesta(apostado, apuesta.text.toFloat())
+                                            }
+                                            textoBoton = "Competidor Invalido"
+                                            return@OutlinedButton
+                                        } else {
+                                            "Competidor Invalido"
+                                        }
+                                    } else {
+                                        "Ingresa Saldo Valido"
+                                    }
+                                }) {
+                                    Text(textoBoton)
                                 }
-                            },
-                            textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                            label = { Text("💸 Tu apuesta 💸")},
-                            placeholder = { Text("El saldo que vas a apostar")},
-                            singleLine = true,
-                            isError = esErrorFloat(apuesta.text),
-                            modifier = Modifier.width(120.dp)
-                        )
+                            }
 
-                        OutlinedTextField(
-                            value = porra,
-                            onValueChange = {newValue ->
-                                run {
-                                    porra = newValue;
-                                }
-                            },
-                            textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                            label = { Text("A quien le vas ")},
-                            placeholder = { Text("Elige 1 competidor del 1 al 6")},
-                            singleLine = true,
-                            isError = esErrorFloat(apuesta.text),
-                            modifier = Modifier.width(120.dp)
-                        )
-
-
+                            OutlinedButton(onClick = { ventana.value = Ventanas.CONSULTAHISTORIALCARRERA }) {
+                                Text("Consulta")
+                            }
+                        }
                     }
 
 
+                    //Informacion Carrera
+                    Column(
+                        verticalArrangement = Arrangement.SpaceAround,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
 
-                    Text("Tu apuesta se procesa en la siguiente carrera")
+                        OutlinedTextField(
+                            value = when (carrera?.apuestaCarrera?.apuesta) {
+                                0 -> "Aun no has apostado"
+                                else -> "A competidor ${carrera?.apuestaCarrera?.apuesta}, $ ${carrera?.apuestaCarrera?.apostado}"
+                            },
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Ultima apuesta") },
+                            singleLine = true
+                        )
 
-                    Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-                        var textoBoton by remember {mutableStateOf("Apuesta")}
-                        Column {
+                        OutlinedTextField(
+                            value = "Competidor ${carrera?.lasWin?.id} con ${carrera?.lasWin?.chance?.times(100)} %",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Ultimo Ganador") },
+                            singleLine = true
+                        )
+
+                        Text("Segundas para la siguiente carrera ${carrera?.segundosParaSiguiente?.plus(1)} s")
+                        LaunchedEffect(0) {
+                            carrera?.hacerCarrera()
+                        }
+                    }
+
+                }
+
+
+                //El torneo
+                Row(
+                    modifier = Modifier.padding(40.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Column {
+                        Text("El torneo, actualmente ${torneo?.numCandidatos} participantes")
+
+                        var porra by remember { mutableStateOf(TextFieldValue("0")) }
+                        var apostado by remember { mutableStateOf(TextFieldValue("0")) }
+
+                        Row {
+                            OutlinedTextField(
+                                value = apostado,
+                                onValueChange = { apostado = it },
+                                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                                label = { Text("💸 Tu apuesta 💸") },
+                                placeholder = { Text("El saldo que vas a apostar") },
+                                singleLine = true,
+                                isError = esErrorInt(apostado.text),
+                                modifier = Modifier.width(120.dp),
+                            )
+
+                            OutlinedTextField(
+                                value = porra,
+                                onValueChange = { porra = it },
+                                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                                label = { Text("A quien le vas") },
+                                placeholder = { Text("El saldo que vas a apostar") },
+                                singleLine = true,
+                                isError = esErrorInt(porra.text),
+                                modifier = Modifier.width(120.dp)
+                            )
+
+
+                        }
+
+                        Text("Estas apostando para el ganador de la partida acutal.")
+
+
+                        Row {
+                            var textoBoton by remember { mutableStateOf("Apuesta") }
                             OutlinedButton(onClick = {
-                                textoBoton = if(!esErrorFloat(apuesta.text)){
-                                    if(navController.usr?.saldo!! < apuesta.text.toFloat()) {
+                                //Acepta la apuesta
+                                textoBoton = if (!esErrorFloat(apostado.text)) {
+
+                                    if (navController.usr?.saldo!! < apostado.text.toFloat()) {
                                         textoBoton = "Saldo Insuficiente"
                                         return@OutlinedButton
                                     }
-                                    if(!esErrorInt(porra.text) ){
-                                        val comID = porra.text.toInt()
-                                        if(comID in 1 .. 6){
-                                            carrera?.apuesta1(comID,apuesta.text.toFloat())
+                                    if (!esErrorInt(porra.text)) {
+                                        val candidatoApostado = porra.text.toInt()
+                                        if (candidatoApostado == torneo?.maxCandidato?.id || candidatoApostado == torneo?.minCandidato?.id) {
+                                            torneo?.apuesta(candidatoApostado, apostado.text.toFloat())
                                         }
+                                        textoBoton = "Competidor Invalido"
                                         return@OutlinedButton
-                                    }else {
+                                    } else {
                                         "Competidor Invalido"
                                     }
                                 } else {
                                     "Ingresa Saldo Valido"
                                 }
-                            }){
+
+
+                            }) {
                                 Text(textoBoton)
                             }
                         }
+                    }
 
-                        OutlinedButton(onClick = {ventana.value = Ventanas.CONSULTAHISTORIALCARRERA}){
-                            Text("Consulta")
+
+                    //Info Torneo
+                    Column {
+                        Text("Segundos para siguiente ${torneo?.segundosParaSiguinte?.plus(1)}")
+                        OutlinedTextField(
+                            value = when (torneo?.apuestaTorneo?.apuesta) {
+                                -1 -> "Aun no has apostado"
+                                else -> "Ultima apauesta a ${torneo?.apuestaTorneo?.apuesta}, ${torneo?.apuestaTorneo?.apostado} "
+                            },
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Ultima Apuesta") },
+                            singleLine = true,
+                            placeholder = { TextFieldValue("Aun no has apostado.") }
+                        )
+
+                        OutlinedTextField(
+                            value = "Competidor ${torneo?.lastWinnner?.id} con ${torneo?.lastWinnner?.habilidad} habilidad",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Ultimo Ganador") },
+                            singleLine = true
+                        )
+
+                        OutlinedTextField(
+                            value = "${torneo?.maxCandidato?.id}(Lvl ${torneo?.maxCandidato?.habilidad}) vs ${torneo?.minCandidato?.id}(Lvl ${torneo?.minCandidato?.habilidad})\n" +
+                                    "Cuota ${torneo?.maxCandidato?.id} : %2.2f vs Cuota ${torneo?.minCandidato?.id} : %2.2f".format(
+                                        torneo?.maxCandidato?.cuota,
+                                        torneo?.minCandidato?.cuota
+                                    ),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Partida Actual") },
+                            textStyle = TextStyle(textAlign = TextAlign.Center, fontFamily = FontFamily.Monospace)
+                        )
+                    }
+                    LaunchedEffect(1) {
+                        while (true) {
+                            torneo?.partidas()
+                            torneo = navController.usr?.let { Torneo(it, apuestaTorneo) }
                         }
                     }
+
+
                 }
 
 
-                //Informacion Carrera
-                Column(verticalArrangement = Arrangement.SpaceAround, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
 
-                    OutlinedTextField(
-                        value = "A competidor ${carrera?.apuestaCarrera?.apuesta}, $ ${carrera?.apuestaCarrera?.apostado} ",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Ultima apuesta")},
-                        singleLine =  true
-                    )
-
-                    OutlinedTextField(
-                        value = "Competidor ${carrera?.lasWin?.id} con ${carrera?.lasWin?.chance?.times(100)} %",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Ultimo Ganador")},
-                        singleLine =  true
-                    )
-
-                    Text("Segundas para la siguiente carrera ${carrera?.segundosParaSiguiente?.plus(1)} s")
-                    LaunchedEffect(0){
-                        carrera?.hacerCarrera()
+                Row(horizontalArrangement = Arrangement.Center) {
+                    var texto by remember { mutableStateOf("Aun no has apostado") }
+                    when (navController.usr?.ultimaApuesta?.ganada) {
+                        true -> texto =
+                            "Ultima Apuesta : Has gando, apostate ${navController.usr!!.ultimaApuesta?.apostado} y ganaste ${navController.usr!!.ultimaApuesta?.ganancia} en ${navController.usr!!.ultimaApuesta?.tipo}"
+                        false -> texto =
+                            "Ultima Apuesta : Apostaste en ${navController.usr!!.ultimaApuesta?.tipo} y perdiste ${navController.usr!!.ultimaApuesta?.apostado}"
+                        else -> {}
                     }
+                    Text(texto, textAlign = TextAlign.Center)
                 }
-
-
             }
 
-
-            //Torneos
-            Row {
-                LazyColumn(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth().padding(12.dp)
-                ) {
-                    items(items = arr) {
-                        int(it)
-                        Spacer(Modifier.padding(10.dp))
-                    }
-                }
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(
-                        scrollState = estado
-                    )
-                )
-            }
-
-
-        }
     }
 }
+
+

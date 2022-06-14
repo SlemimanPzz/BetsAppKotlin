@@ -66,17 +66,22 @@ data class Usuario(val nombre: String, var saldo: Float, val historial: Historia
      * Guarda el usuario en el directorio de los usuarios.
      */
     fun guarda(){
-        val file = File("./.Usuarios")
-        if(!file.exists()){
-            println(file.absolutePath)
-            println(file.canonicalPath)
-            print(file.mkdir())
+        try{
+            val file = File("./.Usuarios")
+            if(!file.exists()){
+                println(file.absolutePath)
+                println(file.canonicalPath)
+                print(file.mkdir())
+            }
+
+
+            val archivoGuarda = FileWriter("./.Usuarios/${this.nombre}.json")
+            archivoGuarda.write(Json.encodeToString(this))
+            archivoGuarda.close()
+        } catch (_ : Exception){
+
         }
 
-
-        val archivoGuarda = FileWriter("./.Usuarios/${this.nombre}.json")
-        archivoGuarda.write(Json.encodeToString(this))
-        archivoGuarda.close()
     }
 
     fun agregarSaldo(f : Float) {

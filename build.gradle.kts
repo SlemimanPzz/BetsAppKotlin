@@ -1,6 +1,5 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -34,7 +33,6 @@ kotlin {
                 implementation("com.google.guava:guava:31.1-jre")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
-                implementation("androidx.navigation:navigation-compose:2.4.2")
             }
         }
         val jvmTest by getting

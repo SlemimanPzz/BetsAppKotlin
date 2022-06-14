@@ -8,25 +8,44 @@ import kotlinx.coroutines.delay
 import kotlin.random.nextInt
 import usuario.*
 import java.lang.Double.min
+/**
+ * Clase para simular el torneo de 16 o 32 candidatos
+ * */
+class Torneo(val usuario: Usuario, var apuestaTorneo: ApuestaPartida) {
 
-class Torneo(val usuario: Usuario, var apuestaTorneo: ApuestaPartida){
+    /**Lista de candidatos*/
+    private var candidatos = mutableListOf<Candidatos>()
 
-    var candidatos = mutableListOf<Candidatos>() // Lista de candidatos
-    var candidatosQuePasaron = mutableListOf<Candidatos>()
-    var minCandidato by mutableStateOf( Candidatos(0,0,0.0,0.0) )// el candidato con menor probabilidad de ganar
-    var maxCandidato by mutableStateOf( Candidatos(0,0,0.0,0.0)) // el candidato con mayor probabilidad de ganar
-    var candidatoGanador by mutableStateOf( Candidatos(0,0,0.0,0.0) )  // Ganador de la partida
-    var ncandidatos = kotlin.random.Random.nextInt(1 .. 2) // EL número de candidatos puede ser 16 o 32
+    /**Lista de candidatos que pasaron la primera ronda */
+    private var candidatosQuePasaron = mutableListOf<Candidatos>()
+
+    /** Candidato con menor habilidad en la partida */
+    var minCandidato by mutableStateOf(Candidatos(0, 0, 0.0, 0.0))// el candidato con menor probabilidad de ganar
+
+    /** Candidato con mayor habilidad en la partida */
+    var maxCandidato by mutableStateOf(Candidatos(0, 0, 0.0, 0.0)) // el candidato con mayor probabilidad de ganar
+
+    /** Candidato ganador de la partida*/
+    private var candidatoGanador by mutableStateOf(Candidatos(0, 0, 0.0, 0.0))  // Ganador de la partida
+
+    /** Random para determinar si tiene 16 o 32 candidatos*/
+    private var ncandidatos = kotlin.random.Random.nextInt(1 .. 2) // EL número de candidatos puede ser 16 o 32
+
+    /** Ganador del torneo*/
     var lastWinnner by mutableStateOf(Candidatos(0,0,0.0,0.0))
+
+    /** Total de candidatos en el torneo*/
     var numCandidatos by mutableStateOf(candidatos.size)
 
-    var segundosParaSiguinte by mutableStateOf(15)
+    /** Segundos para el siguiente torneo*/
+    var segundosParaSiguiente by mutableStateOf(15)
+
     init{
         when(ncandidatos){
             1-> ncandidatos = 16
             2-> ncandidatos = 32
         }
-        for(i in 0 .. ncandidatos-1){
+        for(i in 0 until ncandidatos){
             candidatos.add(Candidatos(0,i,0.0,0.0))
         }
         candidatos.shuffle()
@@ -48,7 +67,7 @@ class Torneo(val usuario: Usuario, var apuestaTorneo: ApuestaPartida){
             candidatosQuePasaron = mutableListOf()
         }
     }
-
+    /** Para obtener la apuesta del torneo*/
     fun apuesta(apostado : Int, cantida : Float){
         apuestaTorneo = apuestaTorneo.copy(apostado, cantida)
         println(apuestaTorneo)
@@ -58,7 +77,7 @@ class Torneo(val usuario: Usuario, var apuestaTorneo: ApuestaPartida){
      * Método para simular un partido entre dos candidatos
      */
     suspend fun partida(candidatoA : Candidatos, candidatoB : Candidatos){
-        segundosParaSiguinte = 15
+        segundosParaSiguiente = 15
 
         candidatoA.probabilidad = candidatoA.habilidad.toDouble() / (candidatoA.habilidad + candidatoB.habilidad)
         candidatoB.probabilidad = candidatoB.habilidad.toDouble() / (candidatoB.habilidad + candidatoA.habilidad)
@@ -76,8 +95,8 @@ class Torneo(val usuario: Usuario, var apuestaTorneo: ApuestaPartida){
             maxCandidato = candidatoA
         }
 
-        while (segundosParaSiguinte >= 0){
-            segundosParaSiguinte -= 1
+        while (segundosParaSiguiente >= 0){
+            segundosParaSiguiente -= 1
             delay(1000L)
         }
         // Aquí se le daría tiempo al usuario para realizar la apuesta

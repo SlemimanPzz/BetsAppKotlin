@@ -441,7 +441,7 @@ fun Principal(navController: NavController) {
 
                     //Info Torneo
                     Column {
-                        Text("Segundos para siguiente ${torneo?.segundosParaSiguinte?.plus(1)}")
+                        Text("Segundos para siguiente ${torneo?.segundosParaSiguiente?.plus(1)}")
                         OutlinedTextField(
                             value = when (torneo?.apuestaTorneo?.apuesta) {
                                 -1 -> "Aun no has apostado"

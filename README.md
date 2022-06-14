@@ -10,9 +10,11 @@ Este proyecto fue hecho en Java 11 y [Kotlin](https://kotlinlang.org/ "Kotlin" )
 
 ### Construcción y ejecución 
 
+_Nota : La primera vez tarda ya que tiene que descargar varias cosas_
+   
 Se recomienda [instalar Gradle](https://gradle.org/install/ "Instalar Gradle") (si no se tiene instalado gradle los comandos pueden ser sustituidos con ./gradlew):
 
-Para compilar (es importante tener java 11): 
+Para construir (es importante tener java 11): 
 
 ```bash
 gradle build
@@ -20,7 +22,7 @@ gradle build
 ```bash
 ./gradlew build
 ```
-También es posible construir el proyecto y ejecutarlo a la vez con:
+También es posible construir el proyecto y ejecutarlo a la vez con(Recomendado):
 
 ```bash
 gradle run

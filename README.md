@@ -108,3 +108,13 @@ utilizarlas. Estas las usamos en el Torneo y en la Carrera.
 ### Interfaz grafica
 
 Para la interfaz gráfica ocupamos la librería de [Compose](https://www.jetbrains.com/lp/compose-desktop/)
+
+### Aclaración sobre compilación 
+
+Durante la elaboración del proyecto tuvimos algunas dificultades para compilarlo, pero logramos 
+correr el programa a través de Intellij. El problema es que se necesita tener java 11 para correrlo. 
+De cualquier manera si se presenta algún inconveniente en la compilación del programa, les dejamos nuestros 
+correos para cualquier aclaración: 
+
+- Emiliano Apodaca: [emilianoa@ciencias.unam.mx](mailto:emilianoa@ciencias.unam.mx)
+- Laura Rodríguez: [laudima@ciencias.uanm.mx](mailto:laudima@ciencias.uanm.mx)
